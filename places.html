@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Places - MyTrips</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      min-height: 300vh;
+      background:
+        linear-gradient(rgba(0,0,0,0.65), rgba(0,0,0,0.65)),
+        url("https://i.pinimg.com/1200x/b9/8a/c8/b98ac8dff5f845d68306fc989904dc12.jpg");
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+      color: rgb(255, 250, 250);
+    }
+
+    /* ===== INTRO ===== */
+    .creator-intro {
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 40px 20px;
+    }
+
+    .creator-box {
+      max-width: 800px;
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(12px);
+      padding: 50px;
+      border-radius: 25px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.7);
+      animation: fadeUp 1.2s ease;
+    }
+
+    .creator-box h1 {
+      font-size: 46px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      margin-bottom: 15px;
+    }
+
+    .creator-box h3 {
+      font-weight: 400;
+      opacity: 0.85;
+      margin-bottom: 25px;
+    }
+
+    .creator-box span {
+      color: #00c6ff;
+      font-weight: 600;
+    }
+
+    .creator-box p {
+      font-size: 16px;
+      line-height: 1.8;
+      opacity: 0.9;
+    }
+
+    .enter-btn {
+      margin-top: 30px;
+      padding: 12px 40px;
+      border-radius: 30px;
+      border: none;
+      font-size: 16px;
+      font-weight: 500;
+      background: linear-gradient(135deg,#00c6ff,#0072ff);
+      color: white;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .enter-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 30px rgba(0,0,0,0.6);
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(40px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ===== NAVBAR ===== */
+    nav {
+      height: 70px;
+      padding: 0 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(0,0,0,0.55);
+      backdrop-filter: blur(12px);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    nav h2 {
+      font-weight: 700;
+      letter-spacing: 1px;
+    }
+
+    nav a {
+      color: #fff;
+      text-decoration: none;
+      margin-right: 15px;
+      font-weight: 500;
+    }
+
+    #logoutBtn {
+      background: linear-gradient(135deg,#ff4b2b,#ff416c);
+      border: none;
+      padding: 8px 18px;
+      border-radius: 20px;
+      color: white;
+      cursor: pointer;
+      font-weight: 500;
+    }
+
+    .filters {
+      margin: 30px auto 15px;
+      max-width: 900px;
+      display: flex;
+      gap: 15px;
+      padding: 0 20px;
+    }
+
+    .filters input, .filters select {
+      flex: 1;
+      padding: 14px 18px;
+      border-radius: 30px;
+      border: none;
+      outline: none;
+    }
+
+    #welcome {
+      text-align: center;
+      margin: 15px 0 25px;
+      font-weight: 400;
+    }
+
+    .places-grid {
+      max-width: 1200px;
+      margin: auto;
+      padding: 20px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit,minmax(260px,1fr));
+      gap: 25px;
+    }
+
+    .place-card {
+      background: rgba(255,255,255,0.18);
+      backdrop-filter: blur(14px);
+      border-radius: 20px;
+      padding: 15px;
+      text-align: center;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.35);
+      transition: 0.35s;
+    }
+
+    .place-card:hover {
+      transform: translateY(-8px);
+    }
+
+    .place-card img {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+      border-radius: 14px;
+      margin-bottom: 12px;
+    }
+
+    .planBtn, .viewBtn {
+      width: 100%;
+      margin-top: 8px;
+      padding: 10px;
+      border-radius: 25px;
+      border: none;
+      cursor: pointer;
+      font-weight: 500;
+    }
+
+    .planBtn {
+      background: linear-gradient(135deg,#00c6ff,#0072ff);
+      color: white;
+    }
+
+    .viewBtn {
+      background: white;
+      color: black;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ✅ INTRO SCREEN -->
+  <section class="creator-intro" id="intro">
+    <div class="creator-box">
+      <h1>MYTRIPS</h1>
+      <h3>Hello, I’m <span>Sagar</span> — the creator of this experience</h3>
+      <p>
+        MyTrips helps you discover destinations, plan journeys,
+        and store your travel memories in one beautiful place.
+        <br><br>
+        Designed with passion, creativity, and simplicity.
+      </p>
+      <button class="enter-btn" onclick="enterApp()">Enter MyTrips</button>
+    </div>
+  </section>
+
+  <!-- ✅ MAIN APP -->
+  <div id="mainApp" style="display:none;">
+
+    <nav>
+  <div style="display:flex; align-items:center; gap:12px;">
+    <button id="backBtn" style="color:rgb(32, 9, 235);class="nav-back">← Back</button>
+    <h2>MyTrips</h2>
+  </div>
+
+  <div>
+    <a href="profile.html" style="color:rgb(252, 245, 245); margin-right:15px;">Profile</a>
+    <button id="logoutBtn">Logout</button>
+  </div>
+</nav>
+
+    <div class="filters">
+      <input id="searchBox" type="text" placeholder="Search city...">
+      <select id="countryFilter">
+        <option value="">All Countries</option>
+      </select>
+    </div>
+
+    <h3 id="welcome"></h3>
+    <section id="places" class="places-grid"></section>
+  </div>
+
+  <script src="supabase.js"></script>
+
+  <script>
+    function enterApp() {
+      document.getElementById("intro").style.display = "none";
+      document.getElementById("mainApp").style.display = "block";
+      checkSession();
+    }
+
+    /* ✅ CHECK SESSION */
+    async function checkSession() {
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      if (!session) {
+        window.location.href = "login.html";
+        return;
+      }
+      document.getElementById("welcome").innerText =
+        "Welcome, " + session.user.email;
+    }
+
+    /* ✅ LOGOUT */
+    document.getElementById("logoutBtn").onclick = async () => {
+      await supabaseClient.auth.signOut();
+      window.location.href = "login.html";
+    };
+
+    /* ✅ CITY DATA */
+    const cities = [
+      { city: "Paris", country: "France" },
+      { city: "London", country: "UK" },
+      { city: "Tokyo", country: "Japan" },
+      { city: "New York", country: "USA" },
+      { city: "Rome", country: "Italy" },
+      { city: "Barcelona", country: "Spain" },
+      { city: "Sydney", country: "Australia" },
+      { city: "Dubai", country: "UAE" },
+      { city: "Singapore", country: "Singapore" },
+      { city: "Istanbul", country: "Turkey" }
+    ];
+
+    const countrySelect = document.getElementById("countryFilter");
+    [...new Set(cities.map(c => c.country))].forEach(c => {
+      const opt = document.createElement("option");
+      opt.value = c;
+      opt.textContent = c;
+      countrySelect.appendChild(opt);
+    });
+
+    function loadPlaces(filterText = "", filterCountry = "") {
+      const parent = document.getElementById("places");
+      parent.innerHTML = "";
+
+      cities
+        .filter(c =>
+          c.city.toLowerCase().includes(filterText.toLowerCase()) &&
+          (filterCountry === "" || c.country === filterCountry)
+        )
+        .forEach(city => {
+          const imgUrl = `https://picsum.photos/seed/${city.city}/400/300`;
+
+          const div = document.createElement("div");
+          div.className = "place-card";
+          div.innerHTML = `
+            <img src="${imgUrl}">
+            <h4>${city.city}</h4>
+            <p>${city.country}</p>
+            <button class="planBtn" data-title="${city.city}">Plan Trip</button>
+            <button class="viewBtn" data-city="${city.city}">View Details</button>
+          `;
+          parent.appendChild(div);
+        });
+    }
+
+    loadPlaces();
+
+    document.getElementById("searchBox").oninput = (e) => {
+      loadPlaces(e.target.value, countryFilter.value);
+    };
+
+    countryFilter.onchange = (e) => {
+      loadPlaces(searchBox.value, e.target.value);
+    };
+
+    document.addEventListener("click", async (e) => {
+
+      if (e.target.classList.contains("viewBtn")) {
+        const city = e.target.getAttribute("data-city");
+        localStorage.setItem("selectedCity", city);
+        window.location.href = "place-details.html";
+      }
+
+      if (e.target.classList.contains("planBtn")) {
+        const placeName = e.target.getAttribute("data-title");
+
+        const startDate = prompt("Start Date (YYYY-MM-DD):");
+        const endDate = prompt("End Date (YYYY-MM-DD):");
+        const budget = prompt("Budget:");
+        const people = prompt("People:");
+
+        if (!startDate || !endDate || !budget || !people) {
+          alert("All fields required");
+          return;
+        }
+
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        if (!session) {
+          alert("Please login");
+          return;
+        }
+
+        const { error } = await supabaseClient.from("trips").insert([{
+          user_id: session.user.id,
+          destination: placeName,
+          start_date: startDate,
+          end_date: endDate,
+          budget: parseFloat(budget),
+          people: parseInt(people)
+        }]);
+
+        if (!error) {
+          window.location.href = "saved-trips.html";
+        } else {
+          alert("Failed to save trip");
+        }
+      }
+    });
+    // ✅ BACK BUTTON LOGIC
+document.getElementById("backBtn").onclick = () => {
+  if (document.referrer) {
+    window.history.back();
+  } else {
+    window.location.href = "profile.html"; // fallback
+  }
+};
+
+  </script>
+
+</body>
+</html>

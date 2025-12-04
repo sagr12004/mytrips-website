@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Register - MyTrips</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  <!-- Supabase CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background: linear-gradient(120deg, #0f172a, #020617);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 40px;
+    }
+
+    .register-wrapper {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      background: white;
+      border-radius: 20px;
+      overflow: hidden;
+      max-width: 950px;
+      width: 100%;
+      box-shadow: 0 25px 70px rgba(0,0,0,0.4);
+    }
+
+    /* ===== LEFT DESIGN PANEL ===== */
+    .left-panel {
+      background: linear-gradient(135deg, #111827, #020617);
+      color: white;
+      padding: 60px 50px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .left-panel h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 36px;
+      margin-bottom: 15px;
+    }
+
+    .left-panel p {
+      opacity: 0.8;
+      line-height: 1.6;
+      font-size: 15px;
+      margin-bottom: 40px;
+    }
+
+    .feature-list li {
+      margin-bottom: 12px;
+      font-size: 14px;
+      opacity: 0.9;
+    }
+
+    .footer-note {
+      font-size: 12px;
+      opacity: 0.6;
+    }
+
+    /* ===== RIGHT FORM PANEL ===== */
+    .form-panel {
+      padding: 60px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .form-panel h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 30px;
+      margin-bottom: 10px;
+    }
+
+    .form-panel p {
+      margin-bottom: 25px;
+      color: #555;
+    }
+
+    .msg {
+      margin-bottom: 12px;
+      font-weight: 500;
+      font-size: 14px;
+    }
+
+    input {
+      width: 100%;
+      padding: 14px 15px;
+      margin-bottom: 15px;
+      border-radius: 10px;
+      border: 1px solid #ddd;
+      font-size: 15px;
+      transition: 0.3s;
+    }
+
+    input:focus {
+      border-color: #2563eb;
+      box-shadow: 0 0 0 4px rgba(37,99,235,0.1);
+      outline: none;
+    }
+
+    button {
+      margin-top: 10px;
+      padding: 14px;
+      border-radius: 12px;
+      border: none;
+      font-size: 15px;
+      cursor: pointer;
+      background: linear-gradient(135deg, #2563eb, #1e40af);
+      color: white;
+      font-weight: 500;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(37,99,235,0.4);
+    }
+
+    .login-text {
+      margin-top: 18px;
+      font-size: 14px;
+      color: #555;
+    }
+
+    .login-text a {
+      color: #2563eb;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .login-text a:hover {
+      text-decoration: underline;
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 900px) {
+      .register-wrapper {
+        grid-template-columns: 1fr;
+      }
+
+      .left-panel {
+        display: none;
+      }
+
+      .form-panel {
+        padding: 40px 30px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="register-wrapper">
+
+    <!-- LEFT DESIGN PANEL -->
+    <div class="left-panel">
+      <div>
+        <h1>MyTrips</h1>
+        <p>Plan beautifully. Travel smarter. Discover premium destinations with personalized trip planning.</p>
+
+        <ul class="feature-list">
+          <li>✔ Smart travel recommendations</li>
+          <li>✔ Secure trip saving</li>
+          <li>✔ Premium UI experience</li>
+          <li>✔ Professional planning tools</li>
+        </ul>
+      </div>
+
+      <div class="footer-note">
+        © 2025 MyTrips — All Rights Reserved
+      </div>
+    </div>
+
+    <!-- RIGHT FORM PANEL -->
+    <div class="form-panel">
+      <h2>Create Account</h2>
+      <p>Get started with your travel planning journey</p>
+
+      <div class="msg" id="msg"></div>
+
+      <input type="text" id="name" placeholder="Full Name" />
+      <input type="email" id="email" placeholder="Email address" />
+      <input type="password" id="password" placeholder="Password" />
+
+      <button id="registerBtn">Create Account</button>
+
+      <div class="login-text">
+        Already have an account?
+        <a href="login.html">Login</a>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Supabase Wrapper -->
+  <script src="supabase.js"></script>
+
+  <script>
+    function showMsg(text, color='red') {
+      const el = document.getElementById('msg');
+      el.style.color = color;
+      el.innerText = text;
+    }
+
+    document.getElementById('registerBtn').addEventListener('click', async () => {
+      showMsg('');
+      const name = document.getElementById('name').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+
+      if (!name || !email || !password) {
+        showMsg('All fields are required!');
+        return;
+      }
+
+      try {
+        const result = await supabaseClient.auth.signUp({
+          email,
+          password
+        });
+
+        if (result.error) {
+          showMsg(result.error.message || 'Registration error');
+          return;
+        }
+
+        showMsg('Registration successful! Redirecting...', 'green');
+        setTimeout(() => window.location.href = 'login.html', 1200);
+      } catch (err) {
+        console.error('Unexpected error during signUp:', err);
+        showMsg('Unexpected error. Check console.');
+      }
+    });
+  </script>
+
+</body>
+</html>
